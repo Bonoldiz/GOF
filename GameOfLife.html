@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <title>GameOfLife</title>
+
+        <!-- JQuery -->
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+        <!-- Bootstrap --> 
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    </head>
+    <body>
+        <nav class="navbar navbar-light bg-light">
+            <span class="navbar-brand mb-0 h1">Game of Life</span>
+
+            <button id="startGame" class="btn"><span>Start the Game</span></button>
+        </nav>
+
+        <div id="game" class="container">
+            
+        </div>
+    </body>
+    <script type="text/javascript">
+        var test = null;
+
+        function matrixGenerate(x,y){
+            matrix = new Array(x);
+            for(i = 0;i < x; i++){
+                matrix[i] = new Array(y);
+                for(j = 0;j < y;j++){
+                    matrix[i][j] = {"x":i,"y":j,"isLive":false};
+                }
+            }
+            return matrix;
+        }
+
+        function setGameTable(matrixInput){
+            $("#game").html("");
+            matrixInput.forEach(row => {
+                $("#game").append("<div id=\"row\">");
+                row.forEach( cell => { 
+                    if(cell.isLive){
+                        $("#game").append("<div class=\"cell live-cell\" data-x=\""+cell.x+"\" data-y=\""+cell.y+"\"></div>");
+                    }else{
+                        $("#game").append("<div class=\"cell dead-cell\" data-x=\""+cell.x+"\" data-y=\""+cell.y+"\"></div>");
+                    }
+                });
+            });
+        }
+
+        function runGame(matrixInput){
+            test = setInterval(function(){
+                matrixInput.forEach(row => {
+                    $("#game").append("<div id=\"row\">");
+                    row.forEach( cell => { 
+                        if(cell.isLive){
+                            $("#game").append("<div class=\"cell live-cell\" data-x=\""+cell.x+"\" data-y=\""+cell.y+"\"></div>");
+                        }else{
+                            $("#game").append("<div class=\"cell dead-cell\" data-x=\""+cell.x+"\" data-y=\""+cell.y+"\"></div>");
+                        }
+                    });
+                });
+            },1000);
+        }
+
+
+        $(document).ready(function(){
+            var isRunning = false;
+            var matrix = matrixGenerate(20,20);
+            setGameTable(matrix);
+
+            $(".cell").on("click",function(){
+                if(!isRunning){
+                    x = $(this).data('x');
+                    y = $(this).data('y');
+                    //state = matrix[x][y].state;
+                    
+                    matrix[x][y].state = !matrix[x][y].state;
+                    
+                    if(matrix[x][y].state){
+                        $(this).removeClass('dead-cell');
+                        $(this).addClass('live-cell');
+                    }else{
+                        $(this).removeClass('live-cell');
+                        $(this).addClass('dead-cell');
+                    }
+
+                }
+            });
+            
+            
+
+            $('#startGame').on("click",function(){
+                isRunning = !isRunning;
+                if(isRunning){
+                    $(this).html("Stop the Game");
+                    runGame(matrix);
+                }else{
+                    $(this).html("Start the Game");     
+                    setGameTable(matrix); 
+                    clearInterval(test);          
+                }
+               
+            });
+        });
+
+    </script>
+
+    <style type="text/css">
+    .cell {
+        display: inline-block;
+        border: 1px solid grey;
+        
+        width: 20px;
+        height: 20px;
+    }
+
+    .dead-cell {
+        color: white;
+        background: white;
+    }
+
+    .live-cell {
+        color: black;
+        background: black;
+    }
+    </style>
+</html>
