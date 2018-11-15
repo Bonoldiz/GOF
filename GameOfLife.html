@@ -20,63 +20,67 @@
         </div>
     </body>
     <script type="text/javascript">
-        var test = null;
-
-        function matrixGenerate(x,y){
+        var game = null;
+		var isRunning = false;
+		var matrix = null;
+		var transition_matrix = null;
+		
+		var x = 10;
+		var y = 10;
+        
+		
+		function matrixGenerate(x,y){
             matrix = new Array(x);
             for(i = 0;i < x; i++){
                 matrix[i] = new Array(y);
                 for(j = 0;j < y;j++){
-                    matrix[i][j] = {"x":i,"y":j,"isLive":false};
+                    matrix[i][j] = {"isLive":false};
                 }
             }
             return matrix;
         }
 
-        function setGameTable(matrixInput){
+        function setGameTable(matrix){
             $("#game").html("");
-            matrixInput.forEach(row => {
-                $("#game").append("<div id=\"row\">");
-                row.forEach( cell => { 
-                    if(cell.isLive){
-                        $("#game").append("<div class=\"cell live-cell\" data-x=\""+cell.x+"\" data-y=\""+cell.y+"\"></div>");
-                    }else{
-                        $("#game").append("<div class=\"cell dead-cell\" data-x=\""+cell.x+"\" data-y=\""+cell.y+"\"></div>");
-                    }
-                });
-            });
+			for(i = 0;i < x;i++){
+				for(j = 0;j < y;j++){
+					if(matrix[i][j].isLive){
+						status = "live";
+					}else{
+						status = "dead";
+					}
+					$("#game").append("<div class=\"cell "+status+"-cell\" data-x=\""+i+"\" data-y=\""+j+"\"></div>");
+				}
+				$("#game").append("<div id=\"row\">");	
+			}
         }
-
-        function runGame(matrixInput){
-            test = setInterval(function(){
-                matrixInput.forEach(row => {
-                    $("#game").append("<div id=\"row\">");
+		
+        function runGame(){
+			game = setInterval(function(){
+				transition_matrix = matrix;
+                matrix.forEach(row => {
                     row.forEach( cell => { 
-                        if(cell.isLive){
-                            $("#game").append("<div class=\"cell live-cell\" data-x=\""+cell.x+"\" data-y=\""+cell.y+"\"></div>");
-                        }else{
-                            $("#game").append("<div class=\"cell dead-cell\" data-x=\""+cell.x+"\" data-y=\""+cell.y+"\"></div>");
-                        }
+                        new_state = false;
                     });
                 });
+				matrix = transition_matrix;
+				setGameTable(transition_matrix);
             },1000);
         }
-
+		
 
         $(document).ready(function(){
-            var isRunning = false;
-            var matrix = matrixGenerate(20,20);
+			matrix = matrixGenerate(x,y);
             setGameTable(matrix);
 
             $(".cell").on("click",function(){
                 if(!isRunning){
-                    x = $(this).data('x');
-                    y = $(this).data('y');
-                    //state = matrix[x][y].state;
+                    a = $(this).data('x');
+                    b = $(this).data('y');
                     
-                    matrix[x][y].state = !matrix[x][y].state;
+                    matrix[a][b].isLive = !matrix[a][b].isLive;
                     
-                    if(matrix[x][y].state){
+                    if(matrix[x][y].isLive){
                         $(this).removeClass('dead-cell');
                         $(this).addClass('live-cell');
                     }else{
@@ -93,11 +97,13 @@
                 isRunning = !isRunning;
                 if(isRunning){
                     $(this).html("Stop the Game");
-                    runGame(matrix);
+					console.log(matrix);
+					runGame();
+					
                 }else{
                     $(this).html("Start the Game");     
                     setGameTable(matrix); 
-                    clearInterval(test);          
+                    clearInterval(game);          
                 }
                
             });
