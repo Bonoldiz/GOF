@@ -22,13 +22,10 @@
     <script type="text/javascript">
         var game = null;
 		var isRunning = false;
-		var matrix = null;
-		var transition_matrix = null;
 		
-		var x = 10;
-		var y = 10;
+        var x = 20;
+		var y = 20;
         
-		
 		function matrixGenerate(x,y){
             matrix = new Array(x);
             for(i = 0;i < x; i++){
@@ -55,17 +52,54 @@
 			}
         }
 		
-        function runGame(){
-			game = setInterval(function(){
-				transition_matrix = matrix;
-                matrix.forEach(row => {
-                    row.forEach( cell => { 
-                        new_state = false;
-                    });
-                });
-				matrix = transition_matrix;
-				setGameTable(transition_matrix);
+        function runGame(matrix){
+            matrixStart = matrix;
+            
+			game = setInterval(() => {
+                matrixStart = getGeneration(matrixStart);
+                
+                setGameTable(matrixStart);
             },1000);
+        }
+
+        function getGeneration(matrix){
+            
+            transition_matrix = matrixGenerate(x,y);
+           
+            matrix.forEach((row,index_x) => {
+                row.forEach((cell,index_y) => { 
+                    
+                    count = 0;
+
+                    for(i = -1;i < 2; i++){
+                        for(j = -1;j < 2;j++){
+                            try{
+                                if(!(i == 0 && j == 0)){
+                                    if(matrix[index_x+i][index_y+j].isLive){
+                                        count++;
+                                    }
+                                }
+                            }catch(e){
+                                  
+                            }
+                            
+                        }
+                    }
+                    
+                    if(matrix[index_x][index_y].isLive){
+                        if(count == 2 || count == 3){
+                            transition_matrix[index_x][index_y].isLive = true;
+                        }
+                    }else{
+                        if(count == 3){ 
+                            transition_matrix[index_x][index_y].isLive = true;
+                        }
+                    }
+
+                });
+            });
+
+            return transition_matrix;
         }
 		
 
@@ -79,15 +113,9 @@
                     b = $(this).data('y');
                     
                     matrix[a][b].isLive = !matrix[a][b].isLive;
-                    
-                    if(matrix[x][y].isLive){
-                        $(this).removeClass('dead-cell');
-                        $(this).addClass('live-cell');
-                    }else{
-                        $(this).removeClass('live-cell');
-                        $(this).addClass('dead-cell');
-                    }
 
+                    $(this).toggleClass('dead-cell');
+                    $(this).toggleClass('live-cell');
                 }
             });
             
@@ -97,8 +125,7 @@
                 isRunning = !isRunning;
                 if(isRunning){
                     $(this).html("Stop the Game");
-					console.log(matrix);
-					runGame();
+					runGame(matrix);
 					
                 }else{
                     $(this).html("Start the Game");     
