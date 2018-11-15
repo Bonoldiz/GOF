@@ -15,7 +15,22 @@
             <button id="startGame" class="btn"><span>Start the Game</span></button>
         </nav>
 
-        <div id="game" class="container">
+        <div id="setup" class="container">
+            <h3> Dimensioni board </h3>
+            <form>
+                <div class="form-group row">
+                    <label for="x" class="col-1">X:</label>
+                    <input class="form-control col-4" type="number" value="10" id="x">
+                    <label for="y" class="col-1 " >Y:</label>
+                    <input class="form-control col-4" type="number" value="10" id="y">
+                </div>
+                <div class="form-goup">
+                        
+                </div>
+            </form>
+        </div>
+
+        <div id="game" class="container-fluid">
             
         </div>
     </body>
@@ -104,8 +119,27 @@
 		
 
         $(document).ready(function(){
+            x = $("#x").val();
+            y = $("#y").val();
+
 			matrix = matrixGenerate(x,y);
             setGameTable(matrix);
+            /*
+            $("#game").hide();
+            $("#setup").show();
+            */
+            $("#x").on("change",function(){
+                x = $(this).val();
+                console.log(x);
+                matrix = matrixGenerate(x,y);
+                setGameTable(matrix);
+            });
+            
+            $("#y").on("change",function(){
+                y = $(this).val();
+                matrix = matrixGenerate(x,y);
+                setGameTable(matrix);
+            });
 
             $(".cell").on("click",function(){
                 if(!isRunning){
@@ -125,8 +159,7 @@
                 isRunning = !isRunning;
                 if(isRunning){
                     $(this).html("Stop the Game");
-					runGame(matrix);
-					
+                    runGame(matrix);
                 }else{
                     $(this).html("Start the Game");     
                     setGameTable(matrix); 
@@ -139,6 +172,11 @@
     </script>
 
     <style type="text/css">
+        #game {
+            width:800px; 
+            margin:0 auto;
+    }
+
     .cell {
         display: inline-block;
         border: 1px solid grey;
