@@ -11,18 +11,20 @@
     <body>
         <nav class="navbar navbar-light bg-light">
             <span class="navbar-brand mb-0 h1">Game of Life</span>
-
-            <button id="startGame" class="btn"><span>Start the Game</span></button>
-        </nav>
+            <div class="justify-content-end">
+                <button id="pauseGame" class="btn btn-warning" style="align:left;"><span>Pause the Game</span></button>
+                <button id="startGame" class="btn btn-success"><span>Start the Game</span></button>
+            </div>
+            </nav>
 
         <div id="setup" class="container">
             <h3> Dimensioni board </h3>
             <form>
                 <div class="form-group row">
                     <label for="x" class="col-1">X:</label>
-                    <input class="form-control col-4" type="number" value="10" id="x">
+                    <input class="form-control col-4" type="number" value="20" id="x">
                     <label for="y" class="col-1 " >Y:</label>
-                    <input class="form-control col-4" type="number" value="10" id="y">
+                    <input class="form-control col-4" type="number" value="20" id="y">
                 </div>
                 <div class="form-goup">
                         
@@ -30,14 +32,18 @@
             </form>
         </div>
 
-        <div id="game" class="container-fluid">
+        <div id="game" class="">
             
         </div>
     </body>
     <script type="text/javascript">
         var game = null;
-		var isRunning = false;
 		
+        var isRunning = false;
+		var isPause = false;
+
+        var timeRefresh = 1000;
+
         var x = 20;
 		var y = 20;
         
@@ -74,7 +80,7 @@
                 matrixStart = getGeneration(matrixStart);
                 
                 setGameTable(matrixStart);
-            },1000);
+            },100);
         }
 
         function getGeneration(matrix){
@@ -117,20 +123,22 @@
             return transition_matrix;
         }
 		
+        function resetBoard(){
+            matrix = matrixGenerate(x,y);
+            setGameTable(matrix);
+            clearInterval(game);
+        }
 
         $(document).ready(function(){
             x = $("#x").val();
             y = $("#y").val();
 
-			matrix = matrixGenerate(x,y);
-            setGameTable(matrix);
-            /*
-            $("#game").hide();
-            $("#setup").show();
-            */
+            $("#pauseGame").hide();
+
+            resetBoard();
+
             $("#x").on("change",function(){
                 x = $(this).val();
-                console.log(x);
                 matrix = matrixGenerate(x,y);
                 setGameTable(matrix);
             });
@@ -141,32 +149,61 @@
                 setGameTable(matrix);
             });
 
-            $(".cell").on("click",function(){
-                if(!isRunning){
+
+            $('body').on("click",".cell",function(){
+
                     a = $(this).data('x');
                     b = $(this).data('y');
                     
                     matrix[a][b].isLive = !matrix[a][b].isLive;
-
+                
                     $(this).toggleClass('dead-cell');
                     $(this).toggleClass('live-cell');
-                }
+
             });
-            
-            
+
 
             $('#startGame').on("click",function(){
                 isRunning = !isRunning;
+
                 if(isRunning){
+
+                    $('#pauseGame').show();
+
+                    // Cambio colore bottone    
+                    $(this).toggleClass("btn-danger");
+                    $(this).toggleClass("btn-success");
+                    
+                    // Cambio HTML
                     $(this).html("Stop the Game");
+                    
                     runGame(matrix);
                 }else{
+                    // Cambio colore bottone
+                    $(this).toggleClass("btn-danger");
+                    $(this).toggleClass("btn-success");
+
+                    // Nascondo Stop Button
+                    $("#pauseGame").hide();
+
+                    // Cambio HTML
                     $(this).html("Start the Game");     
-                    setGameTable(matrix); 
-                    clearInterval(game);          
-                }
-               
+                    
+                    resetBoard();
+                }   
             });
+
+            $('#pauseGame').on("click",function(){
+                if(isPause){
+                    $(this).html("Pause the game");
+                    runGame(matrix);
+                }else{
+                    $(this).html("Resume the Game");
+                    clearInterval(game);
+                }
+                isPause = !isPause;
+            });
+
         });
 
     </script>
